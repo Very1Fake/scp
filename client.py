@@ -10,7 +10,7 @@ Others = core.Others()
 TerminalParser = plugins.cap.cap(config.cap_config)
 
 args, keys, long_keys = TerminalParser.getArgs()
-
+args = Others.fillEmptyCell(args, 5)
 print(args)
 
 if 'help' in long_keys:
@@ -53,3 +53,5 @@ elif args[0] == 'n':
 
 
     print(options)
+else:
+    print('Try \'scpm --help\' to see all commands')
