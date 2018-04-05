@@ -1,27 +1,23 @@
 # Version 1.0.0a1
 
 import os
-
-
-class Core:
-    def __init__(self):
-        pass
-
-
+import time
+import json
+import config
 
 
 class Others:
     def __init__(self):
         pass
 
-    def scanForFolders(self, dir):
+    def scanForFiles(self, dir, delay=0.1):
         files = []
 
         for r, d, f in os.walk(dir):
             for file in f:
                 if "" in file:
                     files.append(os.path.join(r, file))
-                    time.sleep()
+                    time.sleep(config.core['scan-delay'])
 
         return files
 
@@ -30,3 +26,25 @@ class Others:
             array.append('')
 
         return array
+
+
+class Core(Others):
+    def __init__(self):
+        pass
+
+    def packPackage(self, options):
+        package = {}
+        package['name'] = options['name']
+        package['version'] = config.core['v']
+
+        save_file = package['name'] + '.scp'
+        files_list = self.scanForFiles(options['path'])
+
+        package['files'] = {}
+        package['count'] = len(files_list)
+
+        with open(save_file, 'w+') as file:
+            json.dump(package, file)
+
+    def getFilesContent(self, files):
+        pass

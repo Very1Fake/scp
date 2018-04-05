@@ -1,24 +1,24 @@
 # Version 1.0.0a1
 
-import core
-import plugins.cap
-import config
 import os
+import core
+import config
+import plugins.cap
 
 
+Core = core.Core()
 Others = core.Others()
 TerminalParser = plugins.cap.cap(config.cap_config)
 
 args, keys, long_keys = TerminalParser.getArgs()
 args = Others.fillEmptyCell(args, 5)
-print(args)
 
 if 'help' in long_keys:
     print('Help:')
 elif 'v' in keys:
-    print(config.ver)
+    print(config.manager['ver'])
 elif 'version' in long_keys:
-    print(config.name + '\n' + config.version + '\n\n' + plugins.cap.name + '\n' + plugins.cap.version)
+    print(config.manager['name'] + '\n' + config.manager['version'] + '\n' + config.manager['copyright'] +'\n\n' + plugins.cap.name + '\n' + plugins.cap.version)
 elif args[0] == 'n':
     options = {}
 
@@ -51,7 +51,7 @@ elif args[0] == 'n':
     else:
         options['save'] = options['path']
 
-
     print(options)
+    Core.packPackage(options)
 else:
     print('Try \'scpm --help\' to see all commands')
