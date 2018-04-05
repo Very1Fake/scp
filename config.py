@@ -10,8 +10,8 @@ cap_config = {
 # Main information (Manager)
 manager = {
     'name': 'Source Code Package Manager',
-    'version': 'Version 1.0.0a2',
-    'ver': 'v1.0.0a2',
+    'version': 'Version 1.0.0a3',
+    'ver': 'v1.0.0a3',
     'copyright': '(c) 2017 LightPixel GNU AGPL v3'
 }
 
