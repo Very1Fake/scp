@@ -4,6 +4,7 @@ import os
 import time
 import json
 import config
+import hashlib
 
 
 class Others:
@@ -16,10 +17,17 @@ class Others:
         for r, d, f in os.walk(dir):
             for file in f:
                 if "" in file:
-                    files.append(os.path.join(r, file))
-                    time.sleep(config.core['scan-delay'])
+                    temp = os.path.join(r, file)
+                    files.append(temp)
+                    if config.core['debug'] == 1:
+                        print(temp)
+                    time.sleep(config.core['delay'])
 
         return files
+
+    def getCutFullPath(self, path, cut):
+        path = path[len(cut):]
+        return path
 
     def fillEmptyCell(self, array, count=5):
         for i in range(count):
@@ -38,13 +46,35 @@ class Core(Others):
         package['version'] = config.core['v']
 
         save_file = package['name'] + '.scp'
-        files_list = self.scanForFiles(options['path'])
+        file_list = self.scanForFiles(options['path'])
 
-        package['files'] = {}
-        package['count'] = len(files_list)
+        package['files'] = self.getFileList(file_list, options['path'])
+        package['count'] = len(file_list)
 
         with open(save_file, 'w+') as file:
             json.dump(package, file)
 
-    def getFilesContent(self, files):
-        pass
+    def unpackPackage(self, options):
+        package = {}
+
+    def getFileList(self, files, cutpath, i=1):
+        file_list = {}
+
+        for f in files:
+            file_list['f' + str(i)] = {
+                'name': f.split('/')[-1],
+                'path': self.getCutFullPath(f, cutpath),
+                'content': self.getFileContent(f)
+            }
+
+            if config.core['debug'] == 1:
+                print(file_list['f' + str(i)])
+
+            i += 1
+            time.sleep(config.core['delay'])
+
+        return file_list
+
+    def getFileContent(self, file):
+        content = open(file, 'r').readlines()
+        return ''.join(content)

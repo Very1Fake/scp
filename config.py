@@ -17,6 +17,7 @@ manager = {
 
 # Main information (Core)
 core = {
-    'v': 1000,
-    'scan-delay': 0.01
+    'v': 100,
+    'delay': 0.01,
+    'debug': 1
 }

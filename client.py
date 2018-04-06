@@ -1,6 +1,9 @@
 # Version 1.0.0a1
 
 import os
+import sys
+sys.dont_write_bytecode = True
+
 import core
 import config
 import plugins.cap
@@ -51,7 +54,8 @@ elif args[0] == 'n':
     else:
         options['save'] = options['path']
 
-    print(options)
+    if config.core['debug'] == 1:
+        print(options)
     Core.packPackage(options)
 else:
     print('Try \'scpm --help\' to see all commands')
