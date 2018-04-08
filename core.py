@@ -4,7 +4,8 @@ import os
 import time
 import json
 import config
-import hashlib
+import base64
+import codecs
 
 
 class Others:
@@ -51,19 +52,22 @@ class Core(Others):
         package['files'] = self.getFileList(file_list, options['path'])
         package['count'] = len(file_list)
 
-        with open(save_file, 'w+') as file:
-            json.dump(package, file)
+        with codecs.open(save_file, 'w+', errors='ignore') as f:
+            f.write(bytes(json.dumps(package)))
+            f.close()
 
     def unpackPackage(self, options):
         package = {}
+        # f.split('/')[-1]
+        with codecs.open(options['path']):
+            pass
 
     def getFileList(self, files, cutpath, i=1):
         file_list = {}
 
         for f in files:
             file_list['f' + str(i)] = {
-                'name': f.split('/')[-1],
-                'path': self.getCutFullPath(f, cutpath),
+                'name': self.getCutFullPath(f, cutpath),
                 'content': self.getFileContent(f)
             }
 
@@ -76,5 +80,8 @@ class Core(Others):
         return file_list
 
     def getFileContent(self, file):
-        content = open(file, 'r').readlines()
-        return ''.join(content)
+        with codecs.open(file, 'rb', errors='ignore') as f:
+            content = base64.b64encode(f.read())
+            content = content.decode('utf-8')
+            f.close()
+        return content

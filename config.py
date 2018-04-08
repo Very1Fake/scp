@@ -19,5 +19,5 @@ manager = {
 core = {
     'v': 100,
     'delay': 0.01,
-    'debug': 1
+    'debug': 0
 }
