@@ -1,10 +1,12 @@
 # Version 1.0.0a3
-name = 'Console Arguments Parser'
-version = 'Version 1.0.0a3'
-
+# https://github.com/Very1Fake/scp
 
 import sys
 import time
+
+sys.dont_write_bytecode = True
+name = 'Console Arguments Parser'
+version = 'Version 1.0.0a3'
 
 
 class cap:

@@ -1,3 +1,11 @@
+# Version 1.0.0rc1
+# https://github.com/Very1Fake/scp
+
+import sys
+
+sys.dont_write_bytecode = True
+
+
 # CAP config
 cap_config = {
     'long-keys': 'allow',

@@ -1,14 +1,18 @@
-# Version 1.0.0a1
+# Version 1.0.0rc1
+# https://github.com/Very1Fake/scp
 
 import os
+import sys
 import time
 import json
 import config
 import base64
 import codecs
 
+sys.dont_write_bytecode = True
 
-class Others:
+
+class Others():
     def __init__(self):
         pass
 
@@ -36,6 +40,10 @@ class Others:
 
         return array
 
+    def checkDirectory(self, directory):
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+
 
 class Core(Others):
     def __init__(self):
@@ -46,33 +54,38 @@ class Core(Others):
         package['name'] = options['name']
         package['version'] = config.core['v']
 
-        save_file = package['name'] + '.scp'
+        file = options['save'] + '/' + package['name'] + '.scp'
         file_list = self.scanForFiles(options['path'])
 
         package['files'] = self.getFileList(file_list, options['path'])
         package['count'] = len(file_list)
 
-        with codecs.open(save_file, 'w+', errors='ignore') as f:
+        with codecs.open(file, 'wb+', errors='ignore') as f:
             f.write(bytes(json.dumps(package)))
             f.close()
 
     def unpackPackage(self, options):
-        package = {}
-        # f.split('/')[-1]
-        with codecs.open(options['path']):
-            pass
+        file = options['path'] + '/' + options['name']
 
-    def getFileList(self, files, cutpath, i=1):
-        file_list = {}
+        package = self.getPackage(file)
+
+        for i in package['files']:
+            n, d = self.getFileInfo(i['name'], options['save'])
+            c = i['content']
+            self.checkDirectory(d)
+            self.createFileWithContent(d + n, c)
+
+    def getFileList(self, files, cutpath, i=0):
+        file_list = []
 
         for f in files:
-            file_list['f' + str(i)] = {
+            file_list.append({
                 'name': self.getCutFullPath(f, cutpath),
                 'content': self.getFileContent(f)
-            }
+            })
 
             if config.core['debug'] == 1:
-                print(file_list['f' + str(i)])
+                print(file_list[i])
 
             i += 1
             time.sleep(config.core['delay'])
@@ -85,3 +98,19 @@ class Core(Others):
             content = content.decode('utf-8')
             f.close()
         return content
+
+    def getPackage(self, file):
+        with codecs.open(file, 'rb') as f:
+            temp = json.loads(f.read().encode('ascii', 'ignore'))
+            f.close()
+            return temp
+
+    def getFileInfo(self, info, position):
+        n = '/' + info.split('/')[-1:][0].encode('ascii')
+        d = position + '/'.join(info.split('/')[:-1]).encode('ascii')
+        return n, d
+
+    def createFileWithContent(self, file, content):
+        with open(file, 'wb+') as f:
+            f.write(bytes(content.decode('base-64')))
+            f.close()
