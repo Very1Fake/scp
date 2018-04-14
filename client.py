@@ -1,4 +1,4 @@
-# Version 1.0.0rc1
+# Version 1.0.0rc2
 # https://github.com/Very1Fake/scp
 
 import os

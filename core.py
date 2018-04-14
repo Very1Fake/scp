@@ -1,10 +1,10 @@
-# Version 1.0.0rc1
+# Version 1.0.0rc2
 # https://github.com/Very1Fake/scp
 
 import os
 import sys
-import time
-import json
+from time import sleep
+from json import dumps, loads
 import config
 import base64
 import codecs
@@ -26,7 +26,7 @@ class Others():
                     files.append(temp)
                     if config.core['debug'] == 1:
                         print(temp)
-                    time.sleep(config.core['delay'])
+                    sleep(config.core['delay'])
 
         return files
 
@@ -49,48 +49,59 @@ class Core(Others):
     def __init__(self):
         pass
 
-    def packPackage(self, options):
-        package = {}
-        package['name'] = options['name']
-        package['version'] = config.core['v']
+    def getPackageFirstLine(self, name, count, version=config.core['version']):
+        line = {}
+        line['name'] = name
+        line['version'] = version
+        line['count'] = count
+        return line
 
-        file = options['save'] + '/' + package['name'] + '.scp'
+    def getPackageFileInfo(self, name, cut, position):
+        info = [name[len(cut):], position]
+        return info
+
+    def packPackage(self, options):
         file_list = self.scanForFiles(options['path'])
 
-        package['files'] = self.getFileList(file_list, options['path'])
-        package['count'] = len(file_list)
+        # Get first two lines
+        line1 = dumps(self.getPackageFirstLine(options['name'],
+                                               len(file_list),
+                                               config.core['version']))
 
-        with codecs.open(file, 'wb+', errors='ignore') as f:
-            f.write(bytes(json.dumps(package)))
-            f.close()
+        # Init File
+        file = options['save'] + '/' + options['name'] + '.scp'
+        package = open(file, 'w+')
+        package.write(line1)
+
+        # Write Files Content
+        z = 0
+        for i in file_list:
+            z += 1
+            with open(i, 'rb') as f:
+                package.write('\n' + dumps(
+                    self.getPackageFileInfo(i, options['path'], z)))
+                package.write('\n' + base64.b64encode(
+                    f.read()))
+
+        package.close()
 
     def unpackPackage(self, options):
         file = options['path'] + '/' + options['name']
 
-        package = self.getPackage(file)
+        package = open(file, 'r')
 
-        for i in package['files']:
-            n, d = self.getFileInfo(i['name'], options['save'])
-            c = i['content']
+        info = loads(package.readline().encode('utf-8'))
+
+        for i in range(info['count']):
+            file = loads(package.readline()[:-1])
+            n, d = self.getFileInfo(file[0], options['save'])
             self.checkDirectory(d)
-            self.createFileWithContent(d + n, c)
+            with open(d + n, 'wb+') as f:
+                f.write(bytes(package.readline().decode('base-64')))
+                f.close()
+            print(file, n, d, i)
 
-    def getFileList(self, files, cutpath, i=0):
-        file_list = []
-
-        for f in files:
-            file_list.append({
-                'name': self.getCutFullPath(f, cutpath),
-                'content': self.getFileContent(f)
-            })
-
-            if config.core['debug'] == 1:
-                print(file_list[i])
-
-            i += 1
-            time.sleep(config.core['delay'])
-
-        return file_list
+        package.close()
 
     def getFileContent(self, file):
         with codecs.open(file, 'rb', errors='ignore') as f:
@@ -106,8 +117,8 @@ class Core(Others):
             return temp
 
     def getFileInfo(self, info, position):
-        n = '/' + info.split('/')[-1:][0].encode('ascii')
-        d = position + '/'.join(info.split('/')[:-1]).encode('ascii')
+        n = '/' + info.split('/')[-1:][0].encode('utf-8')
+        d = position + '/'.join(info.split('/')[:-1]).encode('utf-8')
         return n, d
 
     def createFileWithContent(self, file, content):
