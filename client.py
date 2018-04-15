@@ -1,9 +1,9 @@
-# Version 1.0.0rc2
+# Version 1.0.0r Stable
 # https://github.com/Very1Fake/scp
 
 import os
 import sys
-import core
+import scp
 import config
 import plugins.cap as cap
 import plugins.af as af
@@ -11,22 +11,26 @@ import plugins.af as af
 sys.dont_write_bytecode = True
 
 
-Core = core.Core()
-Others = core.Others()
-TerminalParser = cap.cap(config.cap_config)
+Core = scp.Core()
+ConsoleParser = cap.cap(config.cap_config)
 
-args, keys, long_keys = TerminalParser.getArgs()
-args = Others.fillEmptyCell(args, 5)
+args, keys, long_keys = ConsoleParser.getArgs()
+args = af.fillEmptyCell(args, 5)
 use = False
 
 # Additional commands by keys
 if 'help' in long_keys:
     print('Help:')
+    print(' \'create\' - create package with files in current dir')
+    print(' \'extract\' - extract files from package in current dir')
+    exit()
 elif 'v' in keys:
     print(config.manager['ver'])
+    exit()
 elif 'version' in long_keys:
     print(config.manager['name'] + '\n' + config.manager['version'] + '\n' +
           config.manager['copyright'] + '\n\n' + cap.name + '\n' + cap.version)
+    exit()
 
 # Main commands by arguments
 if args[0] == 'create' or args[0] == 'c':
@@ -42,8 +46,8 @@ if args[0] == 'create' or args[0] == 'c':
         options['path'] = os.getcwd()
 
     # Name of Package
-    if 'name' in long_keys:
-        options['name'] = long_keys['name']
+    if args[1] != '':
+        options['name'] = args[1]
     else:
         if 'path' in long_keys:
             options['name'] = os.path.basename(long_keys['path'])
@@ -64,9 +68,9 @@ if args[0] == 'create' or args[0] == 'c':
     else:
         options['save'] = options['path']
 
-    if config.core['debug'] == 1:
-        print(options)
-    Core.packPackage(options)
+    if Core.packPackage(options) is True:
+        print('Package create success')
+    exit()
 
 if args[0] == 'extract' or args[0] == 'x':
     options = {}
@@ -103,10 +107,8 @@ if args[0] == 'extract' or args[0] == 'x':
     else:
         options['save'] = options['path']
 
-    if config.core['debug'] == 1:
-        print(options)
+    if Core.unpackPackage(options) is True:
+        print('Package extract success')
+    exit()
 
-    Core.unpackPackage(options)
-
-if use is True:
-    print('Try \'scpm --help\' to see all commands')
+print('Try \'scpm --help\' to see all commands')
