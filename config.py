@@ -1,4 +1,4 @@
-# Version 1.0.0rc1
+# Version 1.0.0r Stable
 # https://github.com/Very1Fake/scp
 
 import sys
@@ -18,14 +18,14 @@ cap_config = {
 # Main information (Manager)
 manager = {
     'name': 'Source Code Package Manager',
-    'version': 'Version 1.0.0a3',
-    'ver': 'v1.0.0a3',
+    'version': 'Version 1.0.0r Stable',
+    'ver': 'v1.0.0r Stable',
     'copyright': '(c) 2017 LightPixel GNU AGPL v3'
 }
 
 # Main information (Core)
-core = {
-    'v': 100,
+scp = {
+    'version': 101,
     'delay': 0.01,
     'debug': 0
 }
