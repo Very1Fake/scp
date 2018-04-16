@@ -1,4 +1,4 @@
-# Version 1.0.0r Stable
+# Version 1.0.1a1
 # https://github.com/Very1Fake/scp
 
 import os
@@ -67,6 +67,18 @@ class Core():
 
         package.close()
         return True
+
+    def listFilesInPackage(self, options):
+        file = options['path'] + '/' + options['name']
+        package = open(file, 'r')
+        info = loads(package.readline().encode('utf-8'))
+        files = []
+
+        for i in range(info['count']):
+            files.append(loads(package.readline()[:-1])[0].encode('utf-8'))
+            package.readline()
+
+        return files
 
     def scanForFiles(self, dir, delay=0.1):
         files = []

@@ -1,4 +1,4 @@
-# Version 1.0.0r Stable
+# Version 1.0.1a1
 # https://github.com/Very1Fake/scp
 
 import os
@@ -109,6 +109,48 @@ if args[0] == 'extract' or args[0] == 'x':
 
     if Core.unpackPackage(options) is True:
         print('Package extract success')
+    exit()
+elif args[0] == 'list' or args[0] == 'l':
+    options = {}
+
+    # Path of Package
+    if 'path' in long_keys:
+        if os.path.exists(long_keys['path']):
+            options['path'] = long_keys['path']
+        else:
+            af.exitEmergancy('Path doesn\'t exist')
+    else:
+        options['path'] = os.getcwd()
+
+    # Name of Package
+    if args[1] == '':
+        af.exitEmergancy('The package name is not specified')
+    else:
+        if os.path.exists(options['path'] + '/' + args[1]):
+            options['name'] = args[1]
+        else:
+            af.exitEmergancy('Package doesn\'t exist')
+
+    # Path to extract
+    if 'save' in long_keys:
+        if long_keys['save'] == 'None':
+            options['save'] = os.getcwd()
+        else:
+            options['save'] = long_keys['save']
+    elif 'saveto' in long_keys:
+        if long_keys['saveto'] == 'None':
+            options['save'] = os.getcwd()
+        else:
+            options['save'] = long_keys['saveto']
+    else:
+        options['save'] = options['path']
+
+    files = Core.listFilesInPackage(options)
+
+    print('Files in ' + options['name'] + ':')
+    for i in files:
+        print(' ' + i)
+
     exit()
 
 print('Try \'scpm --help\' to see all commands')
